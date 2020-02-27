@@ -25,7 +25,7 @@ class App(QMainWindow):
             "z": str(self.zoom),
             "size": '650,450',
             "l": "sat",
-            # {долгота},{широта},{стиль}{цвет}{размер}{контент} '37.44,55.818,pma
+
             "pt": self.coords + ',pm'
         }
 
@@ -41,7 +41,7 @@ class App(QMainWindow):
         response = requests.get(self.api_server, params=self.params)
         with open("map.png", 'wb') as f:
             f.write(response.content)
-            # print('get map')
+
 
     def change_pos(self):
         place = ','.join(list(reversed(list(map(str, geocoder.location(self.lineEdit.text()).latlng)))))
