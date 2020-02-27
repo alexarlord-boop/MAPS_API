@@ -24,9 +24,9 @@ class App(QMainWindow):
             "ll": self.coords,
             "z": str(self.zoom),
             "size": '650,450',
-            "l": "sat",
+            "l": "sat"
 
-            "pt": self.coords + ',pm'
+            # "pt": self.coords + ',pm'
         }
 
     def keyPressEvent(self, event):
@@ -35,27 +35,62 @@ class App(QMainWindow):
             self.change_zoom(1)
         if event.key() == 16777239:
             self.change_zoom(-1)
-        # self.update_map()
+        if event.key() == 52:
+            self.change_tile('h', -1)  # left
+        if event.key() == 54:
+            self.change_tile('h', 1)  # right
+        if event.key() == 50:
+            self.change_tile('v', -1)  # down
+        if event.key() == 56:
+            self.change_tile('v', 1)  # up
 
     def get_map(self):
         response = requests.get(self.api_server, params=self.params)
         with open("map.png", 'wb') as f:
             f.write(response.content)
 
-
-    def change_pos(self):
-        place = ','.join(list(reversed(list(map(str, geocoder.location(self.lineEdit.text()).latlng)))))
+    def change_pos(self, data=None):
+        if data is None:
+            place = ','.join(list(reversed(list(map(str, geocoder.location(self.lineEdit.text()).latlng)))))
+        else:
+            place = data
         # print(place)
         self.coords = place
         self.params["ll"] = self.coords
-        self.params["pt"] = self.coords + ',pm2rdm'
+        # self.params["pt"] = self.coords + ',pm2rdm'
+
+    def change_tile(self, side, k):
+
+        n = 2 ** self.zoom
+        tile_size = 180 / n
+        print(n, tile_size)
+
+        lng, lat = list(map(float, self.coords.split(',')))
+        new_coords = self.coords
+        print(lng, lat)
+
+        if side == 'h':
+            new_lng = lng + k * tile_size
+            if -180 > new_lng or new_lng > 180:
+                new_lng = lng
+            new_coords = ','.join([str(new_lng), str(lat)])
+
+        if side == 'v':
+            new_lat = lat + k * tile_size
+            if -90 > new_lat or new_lat > 90:
+                new_lat = lat
+            new_coords = ','.join([str(lng), str(new_lat)])
+
+        self.change_pos(new_coords)
+        self.update_map()
+        print(new_coords)
 
     def change_zoom(self, d=0):
         if d == 0:
             self.zoom = int(self.lineEdit_2.text())
         else:
             self.zoom = self.zoom + d
-        if self.zoom not in range(1, 18):
+        if self.zoom not in range(0, 18):
             self.zoom -= d
             print('back')
         self.params["z"] = str(self.zoom)
