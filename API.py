@@ -97,7 +97,7 @@ class App(QMainWindow):
         self.lineEdit_2.setText(str(self.zoom))
         self.update_map()
         print(d, self.zoom)
-
+        print('one button')
     def load_image(self, file_name):
         pixmap = QPixmap(file_name)
         # self.label = QLabel(self)
