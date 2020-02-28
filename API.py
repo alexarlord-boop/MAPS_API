@@ -62,7 +62,7 @@ class App(QMainWindow):
             "ll": self.coords,
             "z": str(self.zoom),
             "size": '650,450',
-            "l": "sat"
+            "l": self.layer
             # "pt": place + ',pm'
         }
         self.update_map()
