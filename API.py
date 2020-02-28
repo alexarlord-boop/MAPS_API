@@ -10,7 +10,9 @@ class App(QMainWindow):
         super().__init__()
         uic.loadUi('UI.ui', self)
         self.pushButton.clicked.connect(self.update_params)
-
+        self.pushButton_2.clicked.connect(self.change_l)
+        self.pushButton_3.clicked.connect(self.change_l)
+        self.pushButton_4.clicked.connect(self.change_l)
         self.setWindowTitle('Тест')
         # self.setGeometry(200, 200, 300, 300)
 
@@ -60,11 +62,9 @@ class App(QMainWindow):
         # self.params["pt"] = self.coords + ',pm2rdm'
 
     def change_tile(self, side, k):
-
         n = 2 ** self.zoom
         tile_size = 180 / n
         print(n, tile_size)
-
         lng, lat = list(map(float, self.coords.split(',')))
         new_coords = self.coords
         print(lng, lat)
@@ -97,7 +97,17 @@ class App(QMainWindow):
         self.lineEdit_2.setText(str(self.zoom))
         self.update_map()
         print(d, self.zoom)
-        print('hi')
+
+    def change_l(self):
+        sender = self.sender()
+        if sender.objectName()[-1] == '2':
+            self.params["l"] = 'map'
+        if sender.objectName()[-1] == '3':
+            self.params["l"] = 'sat'
+        if sender.objectName()[-1] == '4':
+            self.params["l"] = 'sat,skl'
+        self.update_map()
+
     def load_image(self, file_name):
         pixmap = QPixmap(file_name)
         # self.label = QLabel(self)
