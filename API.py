@@ -9,7 +9,7 @@ class App(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi('UI.ui', self)
-        self.pushButton.clicked.connect(self.change_pos_by_lineEdit)
+        self.pushButton.clicked.connect(self.change_pos_by_line)
         self.pushButton_2.clicked.connect(self.change_l)
         self.pushButton_3.clicked.connect(self.change_l)
         self.pushButton_4.clicked.connect(self.change_l)
@@ -19,7 +19,7 @@ class App(QMainWindow):
         # self.setGeometry(200, 200, 300, 300)
 
         self.api_key = "40d1649f-0493-4b70-98ba-98533de7710b"
-        self.coords = '44.6736646,40.7696272'
+        self.coords = '90,0'
         self.zoom = 1
         self.delta = 0
         self.layer = 'sat'
@@ -53,25 +53,32 @@ class App(QMainWindow):
         with open("map.png", 'wb') as f:
             f.write(response.content)
 
-    def change_pos_by_lineEdit(self):
+    def change_pos_by_line(self):
         self.coords = ','.join(list(reversed(list(map(str, geocoder.location(self.lineEdit.text()).latlng)))))
         print(self.coords)
         if self.coords == '':
             self.coords = '90,0'
-        self.params = {
-            "ll": self.coords,
-            "z": str(self.zoom),
-            "size": '650,450',
-            "l": "sat"
-            # "pt": place + ',pm'
-        }
+            self.params = self.params = {
+                "ll": self.coords,
+                "z": str(self.zoom),
+                "size": '650,450',
+                "l": self.layer
+            }
+        else:
+            self.params = {
+                "ll": self.coords,
+                "z": str(self.zoom),
+                "size": '650,450',
+                "l": self.layer,
+                "pt": self.coords + ',pm2rdm'
+            }
         self.update_map()
         # self.params["pt"] = self.coords + ',pm2rdm'
 
     def clear(self):
         self.lineEdit.setText('')
-        self.change_pos_by_lineEdit()
-        self.lineEdit_2.setText('0')
+        self.change_pos_by_line()
+        self.lineEdit_2.setText('1')
         self.change_zoom()
         self.update_map()
 
