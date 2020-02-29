@@ -20,6 +20,7 @@ class App(QMainWindow):
 
         self.api_key = "40d1649f-0493-4b70-98ba-98533de7710b"
         self.coords = '90,0'
+        self.pointer = None
         self.zoom = 1
         self.delta = 0
         self.layer = 'sat'
@@ -56,6 +57,7 @@ class App(QMainWindow):
     def change_pos_by_line(self):
         self.coords = ','.join(list(reversed(list(map(str, geocoder.location(self.lineEdit.text()).latlng)))))
         print(self.coords)
+        self.pointer = self.coords
         if self.coords == '':
             self.coords = '90,0'
             self.params = self.params = {
@@ -79,6 +81,7 @@ class App(QMainWindow):
         self.lineEdit.setText('')
         self.change_pos_by_line()
         self.lineEdit_2.setText('1')
+        self.pointer = None
         self.change_zoom()
         self.update_map()
 
@@ -89,43 +92,42 @@ class App(QMainWindow):
             "z": str(self.zoom),
             "size": '650,450',
             "l": self.layer
-            # "pt": place + ',pm'
         }
 
     def change_tile(self, side, k):
         n = 2 ** self.zoom
         tile_size = 180 / n
-        # print(n, tile_size)
         lng, lat = list(map(float, self.coords.split(',')))
-        new_coords = self.coords
-        # print(lng, lat)
-
         if side == 'h':
             new_lng = lng + k * tile_size
             if -180 > new_lng or new_lng > 180:
-                new_lng = lng
-            new_coords = ','.join([str(new_lng), str(lat)])
-
+                pass
+            else:
+                new_coords = ','.join([str(new_lng), str(lat)])
+                self.change_pos(new_coords)
+                if bool(self.pointer) is True:
+                    self.params["pt"] = self.pointer + ',pm2rdm'
+                self.update_map()
         if side == 'v':
             new_lat = lat + k * tile_size
-            if -90 > new_lat or new_lat > 90:
-                new_lat = lat
-            new_coords = ','.join([str(lng), str(new_lat)])
-
-        self.change_pos(new_coords)
-        self.update_map()
-        # print(new_coords)
+            if -90 > new_lat or new_lat > 89:
+                pass
+            else:
+                new_coords = ','.join([str(lng), str(new_lat)])
+                self.change_pos(new_coords)
+                if bool(self.pointer) is True:
+                    self.params["pt"] = self.pointer + ',pm2rdm'
+                self.update_map()
 
     def change_zoom(self, d=0):
         if d == 0:
             self.zoom = int(self.lineEdit_2.text())
         else:
-            self.zoom = self.zoom + d
-        if self.zoom not in range(0, 18):
-            self.zoom -= d
-        self.zoom = self.zoom
+            if self.zoom + d not in range(0, 18):
+                pass
+            else:
+                self.zoom += d
         self.lineEdit_2.setText(str(self.zoom))
-        # print(d, self.zoom)
         self.params["z"] = str(self.zoom)
         self.update_map()
 
@@ -149,7 +151,7 @@ class App(QMainWindow):
 
     def update_map(self):
         # self.update_params()
-
+        # print("map update")
         self.get_map()
         self.load_image('map.png')
 
